@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "provider", "provider", "{69690F99-02F0-4D03-A954-E50CD3935FBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonMessageProvider", "provider\PersonMessageProvider\PersonMessageProvider.csproj", "{E6A78A27-84E4-490D-B6C8-09395CE9BB9A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "consumer", "consumer", "{720B9B7E-912D-4ED3-86A8-BBEF72217285}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PersonMessageConsumer", "PersonMessageConsumer", "{6333E89B-EE0B-4FFE-9094-67AA74E8AFA8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A81FA71B-DEBC-43F4-9F18-4FE4919A380A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonMessageConsumer", "consumer\PersonMessageConsumer\src\PersonMessageConsumer\PersonMessageConsumer.csproj", "{EFE7F98A-66EA-451C-A223-C6AEBC02BDB0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FE8DBE4E-02FF-4DFD-A03A-84D7DB2BAAD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonMessageConsumer.Tests", "consumer\PersonMessageConsumer\test\PersonMessageConsumer.Tests\PersonMessageConsumer.Tests.csproj", "{0F722659-18F1-4365-9569-3A43057885D3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E6A78A27-84E4-490D-B6C8-09395CE9BB9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6A78A27-84E4-490D-B6C8-09395CE9BB9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6A78A27-84E4-490D-B6C8-09395CE9BB9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6A78A27-84E4-490D-B6C8-09395CE9BB9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFE7F98A-66EA-451C-A223-C6AEBC02BDB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFE7F98A-66EA-451C-A223-C6AEBC02BDB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFE7F98A-66EA-451C-A223-C6AEBC02BDB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFE7F98A-66EA-451C-A223-C6AEBC02BDB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F722659-18F1-4365-9569-3A43057885D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F722659-18F1-4365-9569-3A43057885D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F722659-18F1-4365-9569-3A43057885D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F722659-18F1-4365-9569-3A43057885D3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E6A78A27-84E4-490D-B6C8-09395CE9BB9A} = {69690F99-02F0-4D03-A954-E50CD3935FBC}
+		{6333E89B-EE0B-4FFE-9094-67AA74E8AFA8} = {720B9B7E-912D-4ED3-86A8-BBEF72217285}
+		{A81FA71B-DEBC-43F4-9F18-4FE4919A380A} = {6333E89B-EE0B-4FFE-9094-67AA74E8AFA8}
+		{EFE7F98A-66EA-451C-A223-C6AEBC02BDB0} = {A81FA71B-DEBC-43F4-9F18-4FE4919A380A}
+		{FE8DBE4E-02FF-4DFD-A03A-84D7DB2BAAD7} = {6333E89B-EE0B-4FFE-9094-67AA74E8AFA8}
+		{0F722659-18F1-4365-9569-3A43057885D3} = {FE8DBE4E-02FF-4DFD-A03A-84D7DB2BAAD7}
+	EndGlobalSection
+EndGlobal
