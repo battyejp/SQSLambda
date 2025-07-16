@@ -2,6 +2,7 @@
 using Amazon.SimpleNotificationService.Model;
 using Newtonsoft.Json;
 using PersonMessageProvider.Models;
+using PersonMessageProvider.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -25,10 +26,12 @@ namespace PersonMessageProvider
                 // Create SNS client configured for LocalStack
                 var snsClient = CreateSnsClient();
                 
-                // Publish person message to SNS topic
-                await PublishPersonMessage(snsClient, person);
+                // Create the client and publish person message
+                var client = new PersonMessageClient(snsClient, TOPIC_ARN);
+                var messageId = await client.PublishPersonMessageAsync(person);
                 
                 Console.WriteLine($"Successfully published message for: {person}");
+                Console.WriteLine($"Message ID: {messageId}");
             }
             catch (Exception ex)
             {
@@ -69,49 +72,6 @@ namespace PersonMessageProvider
             };
 
             return new AmazonSimpleNotificationServiceClient("test", "test", config);
-        }
-
-        private static async Task PublishPersonMessage(AmazonSimpleNotificationServiceClient snsClient, Person person)
-        {
-            var messageJson = JsonConvert.SerializeObject(person, Formatting.Indented);
-            
-            var publishRequest = new PublishRequest
-            {
-                TopicArn = TOPIC_ARN,
-                Message = messageJson,
-                Subject = $"Person Message: {person.FirstName} {person.LastName}",
-                MessageAttributes = new Dictionary<string, MessageAttributeValue>
-                {
-                    {
-                        "MessageType", new MessageAttributeValue
-                        {
-                            DataType = "String",
-                            StringValue = "PersonMessage"
-                        }
-                    },
-                    {
-                        "FirstName", new MessageAttributeValue
-                        {
-                            DataType = "String",
-                            StringValue = person.FirstName
-                        }
-                    },
-                    {
-                        "LastName", new MessageAttributeValue
-                        {
-                            DataType = "String",
-                            StringValue = person.LastName
-                        }
-                    }
-                }
-            };
-
-            Console.WriteLine($"Publishing message to topic: {TOPIC_ARN}");
-            Console.WriteLine($"Message: {messageJson}");
-
-            var response = await snsClient.PublishAsync(publishRequest);
-            
-            Console.WriteLine($"Message published successfully! MessageId: {response.MessageId}");
         }
     }
 }
