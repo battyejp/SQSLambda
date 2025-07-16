@@ -1,6 +1,23 @@
 # SQS Lambda LocalStack Setup
 
-This project provides a Docker Compose setup for running AWS SQS and SNS services locally using LocalStack.
+This project provides a Docker Compose setup for running AWS SQS and SNS services locally using LocalStack, along with a .NET Console Application that publishes person messages to the SNS topic.
+
+## Project Structure
+
+```
+SQSLambda/
+├── docker-compose.yml          # Main orchestration file
+├── setup-scripts/              # AWS resource setup scripts
+│   ├── setup-aws-resources.sh  # Creates SNS topic and SQS queue
+│   └── test-integration.sh     # Tests SNS→SQS message flow
+├── provider/                   # .NET Console Application
+│   └── PersonMessageProvider/  # Person message publisher
+│       ├── Models/             # Person model
+│       ├── Program.cs          # Main application logic
+│       ├── run.bat/.sh         # Launch scripts
+│       └── README.md           # Application documentation
+└── consumer/                   # Future consumer applications
+```
 
 ## Services
 
@@ -9,7 +26,7 @@ This project provides a Docker Compose setup for running AWS SQS and SNS service
 - **Port**: 4566 (LocalStack Gateway)
 - **Services**: SQS, SNS, Lambda, S3, CloudFormation, IAM, Logs
 - **Features**: 
-  - Persistence enabled
+  - Persistence disabled for fresh start
   - Debug mode enabled
   - Docker Lambda executor
 
@@ -20,6 +37,15 @@ This project provides a Docker Compose setup for running AWS SQS and SNS service
   - SNS Topic: `notification-topic`
   - SQS Queue: `notification-queue`
   - Subscription: SNS topic → SQS queue
+
+### Person Message Provider (.NET Console App)
+- **Location**: `provider/PersonMessageProvider/`
+- **Purpose**: Publishes person messages to SNS topic
+- **Features**:
+  - Interactive or command-line input
+  - JSON message format with timestamps
+  - Message attributes for filtering
+  - LocalStack integration
 
 ## Quick Start
 
@@ -38,6 +64,35 @@ This project provides a Docker Compose setup for running AWS SQS and SNS service
    # Run the test script inside the aws-setup container
    docker-compose exec aws-setup /setup-scripts/test-integration.sh
    ```
+
+4. **Send person messages**:
+   ```bash
+   # Navigate to the provider application
+   cd provider/PersonMessageProvider
+   
+   # Send a message with command line arguments
+   ./run.bat "John" "Doe"
+   
+   # Or run interactively (will prompt for names)
+   ./run.bat
+   ```
+
+## Person Message Format
+
+The .NET application sends messages in the following JSON format:
+```json
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "timestamp": "2025-07-16T14:35:42.806382Z",
+  "messageId": "12345678-1234-1234-1234-123456789012"
+}
+```
+
+With SNS message attributes:
+- `MessageType`: "PersonMessage"
+- `FirstName`: Person's first name
+- `LastName`: Person's last name
 
 ## Environment Variables
 
@@ -82,24 +137,6 @@ curl -X POST http://localhost:4566/ \
     -H "Content-Type: application/x-amz-json-1.0" \
     -H "X-Amz-Target: AmazonSQS.ReceiveMessage" \
     -d '{"QueueUrl":"http://localhost:4566/000000000000/notification-queue"}'
-```
-
-## Project Structure
-
-```
-.
-├── docker-compose.yml          # Main Docker Compose configuration
-├── .env                       # Environment variables
-├── setup-scripts/
-│   └── test-integration.sh    # Test script for SNS/SQS integration
-├── init-scripts/             # LocalStack initialization scripts
-│   └── setup-aws-resources.sh
-├── aws-scripts/              # Additional AWS testing scripts
-│   ├── test-sqs-sns.sh
-│   └── list-resources.sh
-├── localstack-data/          # LocalStack data persistence
-├── consumer/                 # Consumer application directory
-└── provider/                 # Provider application directory
 ```
 
 ## Troubleshooting
