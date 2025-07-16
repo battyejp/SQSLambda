@@ -116,8 +116,17 @@ public class Function
                 
                 // Try to parse the person data
                 var personMessage = JsonSerializer.Deserialize<PersonMessage>(snsNotification.Message);
-                if (personMessage != null && !string.IsNullOrEmpty(personMessage.FirstName))
+                if (personMessage != null)
                 {
+                    // Validate that both first name and last name are present
+                    if (string.IsNullOrWhiteSpace(personMessage.FirstName) || string.IsNullOrWhiteSpace(personMessage.LastName))
+                    {
+                        var errorMessage = $"❌ Invalid PersonMessage: Missing required fields. " +
+                                         $"FirstName: '{personMessage.FirstName}', LastName: '{personMessage.LastName}'";
+                        context.Logger.LogError(errorMessage);
+                        throw new ArgumentException(errorMessage);
+                    }
+
                     context.Logger.LogInformation($"📧 Person Message Received: {personMessage}");
                     context.Logger.LogInformation($"📅 Person Message Timestamp: {personMessage.Timestamp}");
                     context.Logger.LogInformation($"🆔 Person Message ID: {personMessage.MessageId}");
@@ -132,7 +141,7 @@ public class Function
                             // Extract additional attributes
                             if (snsNotification.MessageAttributes.TryGetValue("FirstName", out var firstName))
                             {
-                                context.Logger.LogInformation($"� First Name (from attributes): {firstName.Value}");
+                                context.Logger.LogInformation($"👤 First Name (from attributes): {firstName.Value}");
                             }
                             if (snsNotification.MessageAttributes.TryGetValue("LastName", out var lastName))
                             {
@@ -143,21 +152,32 @@ public class Function
                 }
                 else
                 {
-                    context.Logger.LogInformation("⚠️ Message does not contain valid person data");
+                    var errorMessage = "❌ Failed to deserialize PersonMessage: Message content is null or invalid";
+                    context.Logger.LogError(errorMessage);
+                    throw new ArgumentException(errorMessage);
                 }
             }
             else
             {
-                context.Logger.LogInformation("⚠️ SNS notification message is empty or invalid");
+                var errorMessage = "❌ SNS notification message is empty or invalid";
+                context.Logger.LogError(errorMessage);
+                throw new ArgumentException(errorMessage);
             }
+        }
+        catch (ArgumentException ex)
+        {
+            context.Logger.LogError($"Validation error: {ex.Message}");
+            throw; // Re-throw validation exceptions to fail the Lambda function
         }
         catch (JsonException ex)
         {
             context.Logger.LogError($"Error parsing JSON message: {ex.Message}");
+            throw; // Re-throw JSON parsing exceptions to fail the Lambda function
         }
         catch (Exception ex)
         {
             context.Logger.LogError($"Error processing message content: {ex.Message}");
+            throw; // Re-throw all other exceptions to fail the Lambda function
         }
 
         context.Logger.LogInformation("--- Message Processing Complete ---");
