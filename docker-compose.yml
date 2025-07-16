@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  localstack:
+    container_name: localstack-main
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"            # LocalStack Gateway
+      - "4510-4559:4510-4559"  # External services port range
+    environment:
+      # LocalStack configuration
+      - SERVICES=sqs,sns,lambda,s3,cloudformation,iam,logs
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+      - PERSISTENCE=0
+      - LAMBDA_EXECUTOR=docker
+      - LAMBDA_REMOVE_CONTAINERS=true
+      - EDGE_PORT=4566
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - SKIP_INFRA_DOWNLOADS=0
+      - KINESIS_ERROR_PROBABILITY=0.0
+      - DYNAMODB_ERROR_PROBABILITY=0.0
+      - SQS_ENDPOINT_STRATEGY=standard
+      - SNS_ENDPOINT_STRATEGY=standard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./init-scripts:/etc/localstack/init/ready.d"
+    networks:
+      - localstack-network
+
+  # AWS Setup service to create SNS topic and SQS queue with subscription
+  aws-setup:
+    container_name: aws-setup
+    image: amazon/aws-cli:latest
+    depends_on:
+      - localstack
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ENDPOINT_URL=http://localstack:4566
+    networks:
+      - localstack-network
+    volumes:
+      - "./setup-scripts:/setup-scripts"
+    entrypoint: ["/bin/bash"]
+    command: ["/setup-scripts/setup-aws-resources.sh"]
+
+networks:
+  localstack-network:
+    driver: bridge
