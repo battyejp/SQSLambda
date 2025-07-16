@@ -226,32 +226,44 @@ rm -rf localstack-data
 ## Quick Demo
 
 ```bash
-# Start the entire system
+# Start the entire system (builds and deploys everything automatically)
 docker-compose up -d
 
-# Deploy the Lambda function
-cd setup-scripts
-./deploy-lambda.bat
-
 # Send a person message
-cd ../provider/PersonMessageProvider
+cd provider/PersonMessageProvider
 ./run.bat "John" "Doe"
 
 # Check Lambda logs
 docker logs localstack-main | Select-String "PersonMessage" | Select-Object -Last 10
 ```
 
-## Lambda Deployment
+## Automated Deployment
 
-The Lambda function can be deployed using:
+The Lambda function is now **automatically built and deployed** when you run `docker-compose up`! 
+
+### What happens automatically:
+
+1. **lambda-builder** service:
+   - Installs zip utility and .NET Lambda tools
+   - Builds the PersonMessageConsumer Lambda function
+   - Packages it into a deployment-ready zip file
+   - Copies the package to the setup-scripts folder
+
+2. **aws-setup** service:
+   - Waits for the Lambda package to be ready
+   - Creates SNS topic and SQS queue
+   - Sets up the subscription and queue policies
+   - Creates IAM role for Lambda execution
+   - Deploys the Lambda function to LocalStack
+   - Creates SQS event source mapping for automatic triggering
+
+3. **Complete Pipeline**: Provider → SNS → SQS → Lambda (all configured automatically)
+
+### Manual Deployment (Optional)
+
+If you want to deploy the Lambda function manually:
 ```bash
 cd setup-scripts
 ./deploy-lambda.bat  # Windows
 ./deploy-lambda.sh   # Linux/Mac
 ```
-
-This will:
-- Build and package the Lambda function
-- Deploy to LocalStack
-- Create SQS event source mapping
-- Test the function

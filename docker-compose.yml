@@ -32,12 +32,40 @@ services:
     networks:
       - localstack-network
 
+  # Build Lambda function service
+  lambda-builder:
+    container_name: lambda-builder
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    working_dir: /app
+    volumes:
+      - "./consumer/PersonMessageConsumer:/app"
+      - "./setup-scripts:/setup-scripts"
+    command: >
+      sh -c "
+        echo 'Installing zip utility...' &&
+        apt-get update && apt-get install -y zip &&
+        echo 'Installing Lambda tools...' &&
+        dotnet tool install -g Amazon.Lambda.Tools &&
+        export PATH=\"$$PATH:/root/.dotnet/tools\" &&
+        echo 'Building Lambda function...' &&
+        cd src/PersonMessageConsumer &&
+        dotnet build &&
+        echo 'Packaging Lambda function...' &&
+        dotnet lambda package &&
+        echo 'Copying package to setup-scripts...' &&
+        cp bin/Release/net8.0/PersonMessageConsumer.zip /setup-scripts/ &&
+        echo 'Lambda package ready!'
+      "
+    networks:
+      - localstack-network
+
   # AWS Setup service to create SNS topic and SQS queue with subscription
   aws-setup:
     container_name: aws-setup
     image: amazon/aws-cli:latest
     depends_on:
       - localstack
+      - lambda-builder
     environment:
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
