@@ -1,0 +1,11 @@
+{
+  "Records": [
+    {
+      "messageId": "direct-test-message-id",
+      "body": "{\"Type\":\"Notification\",\"MessageId\":\"direct-test-sns-id\",\"TopicArn\":\"arn:aws:sns:us-east-1:000000000000:notification-topic\",\"Subject\":\"Person Message: Direct Test\",\"Message\":\"{\\\"firstName\\\":\\\"Direct\\\",\\\"lastName\\\":\\\"Test\\\",\\\"timestamp\\\":\\\"2025-07-16T14:55:42.806382Z\\\",\\\"messageId\\\":\\\"direct-test-person-id\\\"}\",\"MessageAttributes\":{\"MessageType\":{\"Type\":\"String\",\"Value\":\"PersonMessage\"},\"FirstName\":{\"Type\":\"String\",\"Value\":\"Direct\"},\"LastName\":{\"Type\":\"String\",\"Value\":\"Test\"}}}",
+      "eventSource": "aws:sqs",
+      "eventSourceArn": "arn:aws:sqs:us-east-1:000000000000:notification-queue",
+      "awsRegion": "us-east-1"
+    }
+  ]
+}

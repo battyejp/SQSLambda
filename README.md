@@ -17,6 +17,11 @@ SQSLambda/
 │       ├── run.bat/.sh         # Launch scripts
 │       └── README.md           # Application documentation
 └── consumer/                   # Future consumer applications
+    └── PersonMessageConsumer/  # Person message processor
+        ├── Models/             # Person model
+        ├── Function.cs         # Lambda function logic
+        ├── deploy-lambda.bat/.sh # Deployment scripts
+        └── README.md           # Application documentation
 ```
 
 ## Services
@@ -47,6 +52,16 @@ SQSLambda/
   - Message attributes for filtering
   - LocalStack integration
 
+### Person Message Consumer (.NET Lambda Function)
+- **Location**: `consumer/PersonMessageConsumer/`
+- **Purpose**: Processes person messages from SQS queue
+- **Features**:
+  - Comprehensive SQS event logging
+  - SNS notification parsing
+  - Person message extraction
+  - Error handling and statistics
+  - Automatic deployment to LocalStack
+
 ## Quick Start
 
 1. **Start the services**:
@@ -75,6 +90,30 @@ SQSLambda/
    
    # Or run interactively (will prompt for names)
    ./run.bat
+   ```
+
+5. **Deploy the consumer Lambda function**:
+   ```bash
+   # Navigate to the setup scripts
+   cd setup-scripts
+   
+   # Deploy the Lambda function
+   ./deploy-lambda.bat
+   ```
+
+6. **Send a test message** (if not done already):
+   ```bash
+   # Navigate to the provider application
+   cd ../provider/PersonMessageProvider
+   
+   # Send a test message
+   ./run.bat "Jane" "Doe"
+   ```
+
+7. **Check Lambda logs**:
+   ```bash
+   # View the last 10 logs for the PersonMessage
+   docker logs localstack-main | Select-String "PersonMessage" | Select-Object -Last 10
    ```
 
 ## Person Message Format
@@ -176,3 +215,43 @@ To also remove the LocalStack data:
 docker-compose down -v
 rm -rf localstack-data
 ```
+
+## Complete Message Flow
+
+1. **Provider** → Sends person message to SNS topic
+2. **SNS Topic** → Forwards message to SQS queue  
+3. **SQS Queue** → Triggers Lambda function
+4. **Lambda Consumer** → Processes message and logs details
+
+## Quick Demo
+
+```bash
+# Start the entire system
+docker-compose up -d
+
+# Deploy the Lambda function
+cd setup-scripts
+./deploy-lambda.bat
+
+# Send a person message
+cd ../provider/PersonMessageProvider
+./run.bat "John" "Doe"
+
+# Check Lambda logs
+docker logs localstack-main | Select-String "PersonMessage" | Select-Object -Last 10
+```
+
+## Lambda Deployment
+
+The Lambda function can be deployed using:
+```bash
+cd setup-scripts
+./deploy-lambda.bat  # Windows
+./deploy-lambda.sh   # Linux/Mac
+```
+
+This will:
+- Build and package the Lambda function
+- Deploy to LocalStack
+- Create SQS event source mapping
+- Test the function
