@@ -171,6 +171,35 @@ public class MessagingPactTests : IDisposable
         });
     }
 
+    [Fact]
+    public async Task Lambda_Should_Reject_Message_With_Invalid_MessageId_Format()
+    {
+        // Arrange - Define a message structure with invalid messageId format using IMessagePactBuilderV4
+        var messageInteraction = _messagePactBuilder
+            .ExpectsToReceive("a person message with invalid messageId format")
+            .WithJsonContent(new
+            {
+                firstName = Match.Type("John"),
+                lastName = Match.Type("Doe"),
+                timestamp = Match.Regex("2025-07-16T16:30:00.000000Z", @"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$"),
+                messageId = "invalid-uuid-format" // This should fail UUID validation
+            });
+
+        // Act & Assert - Test the Lambda function with invalid messageId
+        await messageInteraction.VerifyAsync<object>(async (message) =>
+        {
+            var sqsEvent = CreateSQSEventWithPersonMessage(message);
+            var result = await _function.FunctionHandler(sqsEvent, _context);
+            
+            // Assert - Verify the result shows the message failed validation
+            Assert.NotNull(result);
+            Assert.Contains("Successfully processed 0 message(s)", result);
+            Assert.Contains("Failed: 1", result);
+            
+            _outputHelper.WriteLine($"Lambda correctly rejected message with invalid messageId: {result}");
+        });
+    }
+
     public void Dispose()
     {
         // The IMessagePactBuilderV4 will automatically generate the pact file

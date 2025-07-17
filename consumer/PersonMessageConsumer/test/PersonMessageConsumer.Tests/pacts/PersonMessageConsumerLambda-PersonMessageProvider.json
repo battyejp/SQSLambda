@@ -149,6 +149,50 @@
         "content": {
           "firstName": "John",
           "lastName": "Doe",
+          "messageId": "invalid-uuid-format",
+          "timestamp": "2025-07-16T16:30:00.000000Z"
+        },
+        "contentType": "application/json",
+        "encoded": false
+      },
+      "description": "a person message with invalid messageId format",
+      "matchingRules": {
+        "body": {
+          "$.firstName": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.lastName": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.timestamp": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "regex",
+                "regex": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$"
+              }
+            ]
+          }
+        }
+      },
+      "pending": false,
+      "type": "Asynchronous/Messages"
+    },
+    {
+      "contents": {
+        "content": {
+          "firstName": "John",
+          "lastName": "Doe",
           "messageId": "12345678-1234-1234-1234-123456789012",
           "timestamp": "2025-07-16T16:30:00.000000Z"
         },

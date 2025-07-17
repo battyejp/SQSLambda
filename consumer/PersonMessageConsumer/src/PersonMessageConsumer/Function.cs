@@ -2,6 +2,7 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
 using PersonMessageConsumer.Models;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -123,6 +124,22 @@ public class Function
                     {
                         var errorMessage = $"❌ Invalid PersonMessage: Missing required fields. " +
                                          $"FirstName: '{personMessage.FirstName}', LastName: '{personMessage.LastName}'";
+                        context.Logger.LogError(errorMessage);
+                        throw new ArgumentException(errorMessage);
+                    }
+
+                    // Validate messageId format (must be a valid UUID)
+                    if (string.IsNullOrWhiteSpace(personMessage.MessageId))
+                    {
+                        var errorMessage = "❌ Invalid PersonMessage: MessageId is required";
+                        context.Logger.LogError(errorMessage);
+                        throw new ArgumentException(errorMessage);
+                    }
+
+                    var uuidPattern = @"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$";
+                    if (!Regex.IsMatch(personMessage.MessageId, uuidPattern, RegexOptions.IgnoreCase))
+                    {
+                        var errorMessage = $"❌ Invalid PersonMessage: MessageId '{personMessage.MessageId}' is not a valid UUID format";
                         context.Logger.LogError(errorMessage);
                         throw new ArgumentException(errorMessage);
                     }
