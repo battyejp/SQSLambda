@@ -24,7 +24,7 @@ namespace PersonMessageProvider.Services
             if (_snsClient == null)
                 throw new InvalidOperationException("SNS client is required for publishing messages");
 
-            var messageJson = JsonConvert.SerializeObject(person, Formatting.Indented);
+            var messageJson = GeneratePersonMessage(person);
             
             var publishRequest = new PublishRequest
             {
@@ -38,20 +38,6 @@ namespace PersonMessageProvider.Services
                         {
                             DataType = "String",
                             StringValue = "PersonMessage"
-                        }
-                    },
-                    {
-                        "FirstName", new MessageAttributeValue
-                        {
-                            DataType = "String",
-                            StringValue = person.FirstName
-                        }
-                    },
-                    {
-                        "LastName", new MessageAttributeValue
-                        {
-                            DataType = "String",
-                            StringValue = person.LastName
                         }
                     }
                 }

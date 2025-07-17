@@ -76,21 +76,29 @@ namespace PersonMessageProvider.Tests
                 // Check each expected field if it exists in the pact
                 if (HasProperty(expectedContent, "firstName"))
                 {
+                    Assert.True(HasProperty(generatedJson, "firstName"), 
+                        $"Provider message missing required field 'firstName' for scenario: {description}");
                     Assert.Equal(expectedContent.firstName.ToString(), generatedJson.firstName.ToString());
                 }
                 
                 if (HasProperty(expectedContent, "lastName"))
                 {
+                    Assert.True(HasProperty(generatedJson, "lastName"), 
+                        $"Provider message missing required field 'lastName' for scenario: {description}");
                     Assert.Equal(expectedContent.lastName.ToString(), generatedJson.lastName.ToString());
                 }
                 
                 if (HasProperty(expectedContent, "messageId"))
                 {
+                    Assert.True(HasProperty(generatedJson, "messageId"), 
+                        $"Provider message missing required field 'messageId' for scenario: {description}");
                     Assert.Equal(expectedContent.messageId.ToString(), generatedJson.messageId.ToString());
                 }
                 
                 if (HasProperty(expectedContent, "timestamp"))
                 {
+                    Assert.True(HasProperty(generatedJson, "timestamp"), 
+                        $"Provider message missing required field 'timestamp' for scenario: {description}");
                     Assert.Equal(expectedContent.timestamp.ToString(), generatedJson.timestamp.ToString());
                 }
                 
@@ -104,11 +112,12 @@ namespace PersonMessageProvider.Tests
         {
             _outputHelper.WriteLine($"Generating message for scenario: {scenario}");
             
-            // Generate appropriate test data based on the scenario
+            // Use the actual provider logic - generate a standard person message
+            // This tests whether the provider can satisfy the consumer's expectations
             var person = new Person
             {
-                FirstName = scenario.Contains("missing firstName") ? "" : "John",
-                LastName = scenario.Contains("missing lastName") ? "" : "Doe", 
+                FirstName = "John",
+                LastName = "Doe",  // This is what the actual provider would generate
                 Timestamp = DateTime.Parse("2025-07-16T16:30:00.000000Z").ToUniversalTime(),
                 MessageId = "12345678-1234-1234-1234-123456789012"
             };
