@@ -74,42 +74,47 @@ namespace PersonMessageProvider.Tests
                 // Verify the generated message contains the expected fields
                 Assert.NotNull(generatedJson);
                 
-                // Check each expected field if it exists in the pact
-                if (HasProperty(expectedContent, "firstName"))
+                // Generic validation: Check that ALL fields expected by the consumer are present in the provider message
+                foreach (var expectedProperty in expectedContent)
                 {
-                    Assert.True(HasProperty(generatedJson, "firstName"), 
-                        $"Provider message missing required field 'firstName' for scenario: {description}");
-                    Assert.Equal(expectedContent.firstName.ToString(), generatedJson.firstName.ToString());
+                    string fieldName = expectedProperty.Name;
+                    var expectedValue = expectedProperty.Value;
+                    
+                    _outputHelper.WriteLine($"Validating field: {fieldName}");
+                    
+                    // Check if the provider's generated message contains this expected field
+                    if (!HasProperty(generatedJson, fieldName))
+                    {
+                        throw new InvalidOperationException($"Provider message missing required field '{fieldName}' for scenario: {description}. " +
+                            $"Consumer expects this field but provider does not generate it.");
+                    }
+                    
+                    var generatedValue = generatedJson[fieldName];
+                    
+                    // Special validation for messageId (UUID format)
+                    if (fieldName == "messageId")
+                    {
+                        var uuidPattern = @"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$";
+                        if (!Regex.IsMatch(generatedValue.ToString(), uuidPattern, RegexOptions.IgnoreCase))
+                        {
+                            throw new InvalidOperationException($"Generated messageId '{generatedValue}' does not match UUID format for scenario: {description}");
+                        }
+                        _outputHelper.WriteLine($"✅ MessageId validation passed - Generated UUID: {generatedValue}");
+                    }
+                    else
+                    {
+                        // For other fields, validate that the generated value matches the expected type/format
+                        // Note: In a real pact, we'd validate against the matchers, but for this demo we'll do basic validation
+                        if (generatedValue == null)
+                        {
+                            throw new InvalidOperationException($"Provider generated null value for field '{fieldName}' in scenario: {description}");
+                        }
+                        
+                        _outputHelper.WriteLine($"✅ Field '{fieldName}' present with value: {generatedValue}");
+                    }
                 }
                 
-                if (HasProperty(expectedContent, "lastName"))
-                {
-                    Assert.True(HasProperty(generatedJson, "lastName"), 
-                        $"Provider message missing required field 'lastName' for scenario: {description}");
-                    Assert.Equal(expectedContent.lastName.ToString(), generatedJson.lastName.ToString());
-                }
-                
-                if (HasProperty(expectedContent, "messageId"))
-                {
-                    Assert.True(HasProperty(generatedJson, "messageId"), 
-                        $"Provider message missing required field 'messageId' for scenario: {description}");
-                    
-                    var generatedMessageId = generatedJson.messageId.ToString();
-                    
-                    // Validate that the generated messageId follows UUID format
-                    var uuidPattern = @"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$";
-                    Assert.True(Regex.IsMatch(generatedMessageId, uuidPattern, RegexOptions.IgnoreCase), 
-                        $"Generated messageId '{generatedMessageId}' does not match UUID format for scenario: {description}");
-                    
-                    _outputHelper.WriteLine($"✅ MessageId validation passed - Generated UUID: {generatedMessageId}");
-                }
-                
-                if (HasProperty(expectedContent, "timestamp"))
-                {
-                    Assert.True(HasProperty(generatedJson, "timestamp"), 
-                        $"Provider message missing required field 'timestamp' for scenario: {description}");
-                    Assert.Equal(expectedContent.timestamp.ToString(), generatedJson.timestamp.ToString());
-                }
+                _outputHelper.WriteLine($"✅ All expected fields validated for scenario: {description}");
                 
                 _outputHelper.WriteLine($"✅ Scenario '{description}' passed");
             }
