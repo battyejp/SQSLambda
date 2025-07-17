@@ -138,6 +138,7 @@ namespace PersonMessageProvider.Tests
                 throw new InvalidOperationException("PersonMessageClient is null");
             }
             
+            // Use the actual provider method to generate the message
             var result = _personMessageClient.GeneratePersonMessage(person);
             _outputHelper.WriteLine($"Generated message: {result}");
             

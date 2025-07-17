@@ -52,7 +52,8 @@ namespace PersonMessageProvider.Services
             if (person == null)
                 throw new ArgumentNullException(nameof(person));
 
-            return JsonConvert.SerializeObject(person, Formatting.None);
+            var messageJson = JsonConvert.SerializeObject(person, Formatting.None);
+            return messageJson;
         }
     }
 }
